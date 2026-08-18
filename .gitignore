@@ -17,7 +17,7 @@ __pycache__/
 Thumbs.db
 
 # Experiment artifacts and large local assets
-data/
+/data/
 outputs/
 runs/
 checkpoints/
@@ -26,4 +26,3 @@ wandb/
 *.pt
 *.pth
 *.onnx
-

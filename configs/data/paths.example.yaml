@@ -1,0 +1,11 @@
+data_root: ${SPG_DATA_ROOT}
+output_root: ${SPG_OUTPUT_ROOT}
+cache_root: ${SPG_CACHE_ROOT}
+
+datasets:
+  synthetic_base: ${SPG_DATA_ROOT}/S_base
+  synthetic_pairs: ${SPG_DATA_ROOT}/S_pair
+  synthetic_hard: ${SPG_DATA_ROOT}/S_hard
+  real_val: ${SPG_DATA_ROOT}/T_real/val
+  real_test: ${SPG_DATA_ROOT}/T_real/test
+
