@@ -20,6 +20,24 @@ cp .env.example .env
 bash scripts/setup_server.sh
 ```
 
+The setup script uses the project-local Tsinghua Conda configuration at
+`configs/conda/condarc.tuna.yaml`. It therefore ignores stale channels in the
+server's user-level `.condarc`, including the removed `anaconda/pkgs/free`.
+
+To repair the server-wide Conda configuration as well, first inspect its
+sources and remove the obsolete entry:
+
+```bash
+conda config --show-sources
+conda config --remove channels \
+  https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free || true
+conda clean --index-cache -y
+```
+
+If `pkgs/free` appears under `default_channels` rather than `channels`, edit
+the `.condarc` file reported by `conda config --show-sources` and remove only
+that line. Do not add `pkgs/free` back; the channel has been retired.
+
 If the server driver requires another supported PyTorch wheel, override it:
 
 ```bash
@@ -41,4 +59,3 @@ bash scripts/smoke_test.sh
 
 Record `git rev-parse HEAD`, the configuration file, seed, data version, GPU,
 and `python -m pip freeze` for every formal run.
-
