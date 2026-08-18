@@ -1,0 +1,12 @@
+experiment:
+  name: e6_spg_ihn
+  seed: 42
+
+inherits: configs/experiment/e5_spg_pda.yaml
+
+loss:
+  shift_weight: 0.1
+  hard_negative_weight: 0.1
+  localization_weight: 0.0
+  hard_negative_margin: 0.2
+

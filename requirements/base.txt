@@ -1,0 +1,14 @@
+numpy==1.26.4
+pyyaml==6.0.2
+pillow==11.0.0
+opencv-python-headless==4.10.0.84
+scipy==1.14.1
+pandas==2.2.3
+tqdm==4.67.1
+matplotlib==3.9.3
+seaborn==0.13.2
+tensorboard==2.18.0
+pycocotools==2.0.8
+ultralytics==8.3.40
+open-clip-torch==2.29.0
+

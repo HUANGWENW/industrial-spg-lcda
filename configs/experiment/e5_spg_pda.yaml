@@ -1,0 +1,22 @@
+experiment:
+  name: e5_spg_pda
+  seed: 42
+
+model:
+  detector: yolov8n
+  vision_language_encoder: ViT-B-32
+  vision_language_pretrained: laion2b_s34b_b79k
+  freeze_vision_language_encoder: true
+  num_classes: 1
+  image_size: 640
+
+training:
+  epochs: 100
+  batch_size: 16
+  workers: 8
+
+loss:
+  shift_weight: 0.1
+  hard_negative_weight: 0.0
+  localization_weight: 0.0
+

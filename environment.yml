@@ -1,11 +1,12 @@
 name: spg-lcda
 channels:
-  - pytorch
-  - nvidia
   - conda-forge
 dependencies:
   - python=3.11
-  - pip
-  - pip:
-      - -e .[dev]
+  - pip=24.3
+  - git
+  - ffmpeg
+  - libgl
 
+# GPU PyTorch is deliberately installed by scripts/setup_server.sh so that
+# its CUDA wheel can be matched to the server driver instead of guessed here.
