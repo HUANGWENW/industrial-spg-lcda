@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# Environments and secrets
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Experiment artifacts and large local assets
+data/
+outputs/
+runs/
+checkpoints/
+weights/
+wandb/
+*.pt
+*.pth
+*.onnx
+

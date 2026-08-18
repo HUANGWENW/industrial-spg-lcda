@@ -1,0 +1,19 @@
+experiment:
+  name: e1_synthetic_only
+  seed: 42
+
+model:
+  detector: yolov8n
+  num_classes: 1
+  image_size: 640
+
+training:
+  epochs: 100
+  batch_size: 16
+  workers: 8
+
+loss:
+  shift_weight: 0.0
+  hard_negative_weight: 0.0
+  localization_weight: 0.0
+

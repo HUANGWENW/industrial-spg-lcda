@@ -1,0 +1,19 @@
+experiment:
+  name: smoke
+  seed: 42
+
+model:
+  detector: yolov8n
+  num_classes: 1
+  image_size: 640
+
+training:
+  epochs: 1
+  batch_size: 2
+  workers: 0
+
+loss:
+  shift_weight: 0.0
+  hard_negative_weight: 0.0
+  localization_weight: 0.0
+
