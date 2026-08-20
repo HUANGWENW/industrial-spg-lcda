@@ -16,3 +16,14 @@ def test_film_starts_as_identity_and_receives_gradients() -> None:
     output.square().mean().backward()
     assert film.projection.weight.grad is not None
     assert torch.count_nonzero(film.projection.weight.grad) > 0
+
+
+def test_evaluation_prompt_is_expanded_to_batch() -> None:
+    from spg_lcda.models.film import P5FiLMHook
+
+    film = P5FiLMHook(FeatureFiLM(text_dim=8, channels=4))
+    film.set_evaluation_text_feature(torch.randn(8))
+    source_module = torch.nn.Identity().eval()
+    features = torch.randn(3, 4, 5, 5)
+    output = film.apply(source_module, (features,), features)
+    assert torch.equal(output, features)

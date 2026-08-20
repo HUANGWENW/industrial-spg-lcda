@@ -1,0 +1,6 @@
+path: /data/huangwenwen/yolo11/obb_data/photometric_pairs
+train: metadata/splits/train.txt
+val: metadata/splits/val.txt
+
+names:
+  0: part

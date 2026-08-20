@@ -45,6 +45,7 @@ class P5FiLMHook(nn.Module):
         super().__init__()
         self.film = film
         self._text_features: Tensor | None = None
+        self.register_buffer("evaluation_text_feature", torch.empty(0))
 
     def set_text_features(self, text_features: Tensor) -> None:
         self._text_features = text_features
@@ -52,19 +53,30 @@ class P5FiLMHook(nn.Module):
     def clear_text_features(self) -> None:
         self._text_features = None
 
+    def set_evaluation_text_feature(self, text_feature: Tensor) -> None:
+        if text_feature.ndim != 1:
+            raise ValueError("Evaluation text feature must be one vector")
+        self.evaluation_text_feature = text_feature.detach()
+
     def apply(self, _module: nn.Module, _inputs: tuple[Tensor, ...], output: Tensor) -> Tensor:
-        if self._text_features is None:
-            raise RuntimeError("Set text features before the detector forward pass")
-        text_features = self._text_features.to(device=output.device, dtype=output.dtype)
+        if _module.training:
+            if self._text_features is None:
+                raise RuntimeError("Set text features before the detector forward pass")
+            text_features = self._text_features
+        else:
+            if self.evaluation_text_feature.numel() == 0:
+                raise RuntimeError("Set an evaluation text feature before detector evaluation")
+            text_features = self.evaluation_text_feature[None].expand(len(output), -1)
+        text_features = text_features.to(device=output.device, dtype=output.dtype)
         return self.film(output, text_features)
 
 
-def _ultralytics_layers(model: nn.Module) -> nn.ModuleList:
+def _ultralytics_layers(model: nn.Module) -> nn.Sequential | nn.ModuleList:
     layers = getattr(model, "model", None)
-    if isinstance(layers, nn.ModuleList):
+    if isinstance(layers, (nn.Sequential, nn.ModuleList)):
         return layers
     inner = getattr(layers, "model", None)
-    if isinstance(inner, nn.ModuleList):
+    if isinstance(inner, (nn.Sequential, nn.ModuleList)):
         return inner
     raise TypeError("Expected an Ultralytics YOLO wrapper or OBBModel")
 

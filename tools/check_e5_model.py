@@ -44,7 +44,7 @@ def main() -> None:
     channels = infer_feature_channels(
         detector,
         module_index=film_config["module_index"],
-        image_size=model_config["image_size"],
+        image_size=film_config["probe_image_size"],
         device=device,
     )
     film, remove_hook = install_p5_film(
@@ -55,14 +55,14 @@ def main() -> None:
         normalize_text=film_config["normalize_text"],
         identity_initialization=film_config["identity_initialization"],
     )
-    film.set_text_features(text_features[:2])
+    film.set_evaluation_text_feature(text_features[0])
     detector.eval()
     with torch.no_grad():
         dummy_images = torch.zeros(
             2,
             3,
-            model_config["image_size"],
-            model_config["image_size"],
+            film_config["probe_image_size"],
+            film_config["probe_image_size"],
             device=device,
         )
         detector(dummy_images)
