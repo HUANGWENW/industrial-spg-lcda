@@ -1,0 +1,47 @@
+model:
+  detector: yolo11n-obb.pt
+  num_classes: 1
+  image_size: 640
+  text_encoder:
+    architecture: ViT-B-32
+    pretrained: laion2b_s34b_b79k
+    embedding_dim: 512
+    frozen: true
+    normalize: true
+  film:
+    feature_level: backbone_p5
+    module_index: 10
+    adapter: linear
+    identity_initialization: true
+    normalize_text: true
+
+data:
+  root: /data/huangwenwen/yolo11/obb_data/photometric_pairs
+  train_manifest: metadata/splits/train_manifest.csv
+  val_manifest: metadata/splits/val_manifest.csv
+  prompt_column: prompt
+
+training:
+  epochs: 100
+  batch_size: 16
+  workers: 8
+  patience: 50
+  close_mosaic: 0
+  mosaic: 0.0
+  mixup: 0.0
+  copy_paste: 0.0
+  hsv_h: 0.0
+  hsv_s: 0.0
+  hsv_v: 0.0
+  bgr: 0.0
+  amp: true
+  device: 0
+
+loss:
+  detection_weight: 1.0
+  shift_weight: 0.0
+  hard_negative_weight: 0.0
+  localization_weight: 0.0
+
+output:
+  project: /data/huangwenwen/yolo11/outputs/E5

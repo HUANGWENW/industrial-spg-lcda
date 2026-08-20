@@ -1,0 +1,12 @@
+inherits: configs/experiment/e5_common.yaml
+
+experiment:
+  name: e5_s
+  seed: 42
+
+prompt:
+  mode: manifest
+  evaluation_text: an industrial part image under normal brightness, normal contrast, and neutral color temperature
+
+output:
+  name: E5-S_seed42

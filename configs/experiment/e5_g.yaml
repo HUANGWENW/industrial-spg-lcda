@@ -1,0 +1,13 @@
+inherits: configs/experiment/e5_common.yaml
+
+experiment:
+  name: e5_g
+  seed: 42
+
+prompt:
+  mode: generic
+  generic_text: an industrial part image under unspecified lighting conditions
+  evaluation_text: an industrial part image under unspecified lighting conditions
+
+output:
+  name: E5-G_seed42
