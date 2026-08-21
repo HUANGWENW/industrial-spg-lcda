@@ -14,6 +14,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int)
     parser.add_argument("--fraction", type=float)
     parser.add_argument("--device")
+    parser.add_argument("--name")
     return parser.parse_args()
 
 
@@ -45,7 +46,7 @@ def ultralytics_overrides(config: dict, args: argparse.Namespace) -> dict:
         "deterministic": training["deterministic"],
         "seed": seed,
         "project": output["project"],
-        "name": f"{output['name']}_seed{seed}",
+        "name": args.name or f"{output['name']}_seed{seed}",
         "task": "obb",
         "single_cls": True,
         "val": True,
@@ -56,11 +57,16 @@ def ultralytics_overrides(config: dict, args: argparse.Namespace) -> dict:
 
 
 def main() -> None:
-    from spg_lcda.training import PromptConditionedOBBTrainer
+    from spg_lcda.training import PromptConditionedOBBTrainer, ShiftAlignedOBBTrainer
 
     args = parse_args()
     config = load_config(args.config)
-    trainer = PromptConditionedOBBTrainer(
+    trainer_class = (
+        ShiftAlignedOBBTrainer
+        if config["loss"]["shift_weight"] > 0
+        else PromptConditionedOBBTrainer
+    )
+    trainer = trainer_class(
         experiment_config=config,
         overrides=ultralytics_overrides(config, args),
     )

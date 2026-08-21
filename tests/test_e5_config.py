@@ -56,9 +56,20 @@ def test_e5_training_overrides_use_1280_and_seeded_output() -> None:
         seed=43,
         fraction=0.03,
         device="0",
+        name=None,
     )
     overrides = ultralytics_overrides(config, args)
     assert overrides["imgsz"] == 1280
     assert overrides["name"] == "E5-G_seed43"
     assert overrides["mosaic"] == 0.0
     assert overrides["fraction"] == 0.03
+
+
+def test_e5_f_inherits_all_e5_s_conditions() -> None:
+    structured = load_config("configs/experiment/e5_s.yaml")
+    shift = load_config("configs/experiment/e5_f.yaml")
+
+    for key in ("model", "data", "training", "prompt"):
+        assert shift[key] == structured[key]
+    assert structured["loss"]["shift_weight"] == 0.0
+    assert shift["loss"]["shift_weight"] == 0.01

@@ -39,6 +39,8 @@ def _manifest_prompt_map(
 class PromptConditionedOBBTrainer(OBBTrainer):
     """Ultralytics OBB trainer that conditions backbone P5 on cached prompt embeddings."""
 
+    model_class = OBBModel
+
     def __init__(self, experiment_config: dict, overrides: dict) -> None:
         self.experiment_config = experiment_config
         data_config = experiment_config["data"]
@@ -76,7 +78,7 @@ class PromptConditionedOBBTrainer(OBBTrainer):
             )
 
     def get_model(self, cfg=None, weights=None, verbose=True):
-        model = OBBModel(cfg, ch=3, nc=self.data["nc"], verbose=verbose and RANK == -1)
+        model = self.model_class(cfg, ch=3, nc=self.data["nc"], verbose=verbose and RANK == -1)
         model_config = self.experiment_config["model"]
         film_config = model_config["film"]
         text_config = model_config["text_encoder"]
@@ -94,12 +96,19 @@ class PromptConditionedOBBTrainer(OBBTrainer):
             normalize_text=film_config["normalize_text"],
             identity_initialization=film_config["identity_initialization"],
         )
+        self.configure_conditioned_model(model, channels)
         self._build_prompt_cache()
         if weights:
             model.load(weights)
         evaluation_prompt = self.experiment_config["prompt"]["evaluation_text"]
         film.set_evaluation_text_feature(self.prompt_cache[evaluation_prompt])
         return model
+
+    def configure_conditioned_model(self, model, channels: int) -> None:
+        pass
+
+    def condition_batch(self, model, batch: dict, text_features: torch.Tensor) -> None:
+        model.prompt_film.set_text_features(text_features)
 
     def preprocess_batch(self, batch):
         batch = super().preprocess_batch(batch)
@@ -112,5 +121,6 @@ class PromptConditionedOBBTrainer(OBBTrainer):
                 raise KeyError(f"Image is missing from E5 manifests: {image_path}") from error
             embeddings.append(self.prompt_cache[prompt])
         model = de_parallel(self.model)
-        model.prompt_film.set_text_features(torch.stack(embeddings).to(self.device))
+        text_features = torch.stack(embeddings).to(self.device)
+        self.condition_batch(model, batch, text_features)
         return batch

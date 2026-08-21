@@ -45,6 +45,8 @@ class P5FiLMHook(nn.Module):
         super().__init__()
         self.film = film
         self._text_features: Tensor | None = None
+        self._capture_training_features = False
+        self._captured_features: Tensor | None = None
         self.register_buffer("evaluation_text_feature", torch.empty(0))
 
     def set_text_features(self, text_features: Tensor) -> None:
@@ -62,6 +64,16 @@ class P5FiLMHook(nn.Module):
         """Use one evaluation text vector per image for counterfactual validation."""
         self._evaluation_text_features = text_features
 
+    def capture_training_features(self, enabled: bool = True) -> None:
+        self._capture_training_features = enabled
+
+    def take_captured_features(self) -> Tensor:
+        features = self._captured_features
+        self._captured_features = None
+        if features is None:
+            raise RuntimeError("No P5 features were captured for shift alignment")
+        return features
+
     def apply(self, _module: nn.Module, _inputs: tuple[Tensor, ...], output: Tensor) -> Tensor:
         if _module.training:
             if self._text_features is None:
@@ -74,7 +86,10 @@ class P5FiLMHook(nn.Module):
                     raise RuntimeError("Set an evaluation text feature before detector evaluation")
                 text_features = self.evaluation_text_feature[None].expand(len(output), -1)
         text_features = text_features.to(device=output.device, dtype=output.dtype)
-        return self.film(output, text_features)
+        conditioned = self.film(output, text_features)
+        if _module.training and self._capture_training_features:
+            self._captured_features = conditioned
+        return conditioned
 
 
 def _ultralytics_layers(model: nn.Module) -> nn.Sequential | nn.ModuleList:

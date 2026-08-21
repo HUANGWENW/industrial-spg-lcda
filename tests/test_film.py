@@ -38,3 +38,20 @@ def test_evaluation_accepts_one_prompt_per_image() -> None:
     features = torch.randn(3, 4, 5, 5)
     output = film.apply(source_module, (features,), features)
     assert torch.equal(output, features)
+
+
+def test_shift_alignment_is_zero_for_matching_directions() -> None:
+    from spg_lcda.models.shift import ShiftAlignmentHead
+
+    head = ShiftAlignmentHead(channels=2, text_dim=2)
+    with torch.no_grad():
+        head.projection.weight.copy_(torch.eye(2))
+    features = torch.tensor([[[[0.0]], [[0.0]]], [[[1.0]], [[0.0]]]])
+    text = torch.tensor([[0.0, 0.0], [1.0, 0.0]])
+    head.set_batch(text, torch.tensor([[0, 1]]))
+
+    loss, cosine, pairs = head(features)
+
+    assert torch.isclose(loss, torch.tensor(0.0))
+    assert torch.isclose(cosine, torch.tensor(1.0))
+    assert pairs.item() == 1

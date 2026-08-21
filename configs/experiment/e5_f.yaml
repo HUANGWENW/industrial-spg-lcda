@@ -1,0 +1,16 @@
+inherits: configs/experiment/e5_s.yaml
+
+experiment:
+  name: e5_f
+
+loss:
+  shift_weight: 0.01
+
+continuation:
+  min_shift_cosine_gain: 0.10
+  min_counterfactual_map5095_gap: 0.005
+  max_synthetic_map5095_drop: 0.005
+  min_real_map5095_gain: 0.01
+
+output:
+  name: E5-F-lambda0.01
