@@ -45,6 +45,10 @@ class CounterfactualOBBValidator(OBBValidator):
         self.prompt_cache = prompt_cache
         super().__init__(**kwargs)
 
+    def init_metrics(self, model) -> None:
+        self.inference_model = model
+        super().init_metrics(model)
+
     def preprocess(self, batch: dict) -> dict:
         batch = super().preprocess(batch)
         embeddings = torch.stack(
@@ -53,7 +57,7 @@ class CounterfactualOBBValidator(OBBValidator):
                 for path in batch["im_file"]
             ]
         ).to(self.device)
-        detector = getattr(self.model, "model", self.model)
+        detector = getattr(self.inference_model, "model", self.inference_model)
         detector.prompt_film.set_evaluation_text_features(embeddings)
         return batch
 
