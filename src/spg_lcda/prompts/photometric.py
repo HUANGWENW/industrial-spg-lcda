@@ -29,3 +29,17 @@ def prompt_for(transform_name: str, mode: str) -> str:
         except KeyError as error:
             raise ValueError(f"Unknown photometric transform: {transform_name}") from error
     raise ValueError(f"Unknown prompt mode: {mode}")
+
+
+def counterfactual_prompt_for(transform_name: str, condition: str, seed: int = 42) -> str:
+    """Return the correct, fixed, or deterministically permuted prompt."""
+    if condition == "correct":
+        return PHOTOMETRIC_PROMPTS[transform_name]
+    if condition == "fixed":
+        return PHOTOMETRIC_PROMPTS["identity"]
+    if condition == "shuffled":
+        names = tuple(PHOTOMETRIC_PROMPTS)
+        shift = seed % (len(names) - 1) + 1
+        index = names.index(transform_name)
+        return PHOTOMETRIC_PROMPTS[names[(index + shift) % len(names)]]
+    raise ValueError(f"Unknown counterfactual condition: {condition}")

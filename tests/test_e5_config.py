@@ -1,7 +1,12 @@
 from argparse import Namespace
 
 from spg_lcda.config import load_config
-from spg_lcda.prompts import GENERIC_PROMPT, PHOTOMETRIC_PROMPTS, prompt_for
+from spg_lcda.prompts import (
+    GENERIC_PROMPT,
+    PHOTOMETRIC_PROMPTS,
+    counterfactual_prompt_for,
+    prompt_for,
+)
 from spg_lcda.train_e5 import ultralytics_overrides
 
 
@@ -31,6 +36,15 @@ def test_photometric_prompts_do_not_claim_geometry() -> None:
 def test_prompt_policy() -> None:
     assert prompt_for("brightness_low", "generic") == GENERIC_PROMPT
     assert prompt_for("brightness_low", "manifest") == PHOTOMETRIC_PROMPTS["brightness_low"]
+
+
+def test_shuffled_counterfactual_is_balanced_and_always_wrong() -> None:
+    names = tuple(PHOTOMETRIC_PROMPTS)
+    shuffled = [counterfactual_prompt_for(name, "shuffled", seed=42) for name in names]
+    correct = [PHOTOMETRIC_PROMPTS[name] for name in names]
+
+    assert set(shuffled) == set(correct)
+    assert all(left != right for left, right in zip(shuffled, correct))
 
 
 def test_e5_training_overrides_use_1280_and_seeded_output() -> None:

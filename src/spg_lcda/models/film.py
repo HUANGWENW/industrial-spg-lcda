@@ -58,15 +58,21 @@ class P5FiLMHook(nn.Module):
             raise ValueError("Evaluation text feature must be one vector")
         self.evaluation_text_feature = text_feature.detach()
 
+    def set_evaluation_text_features(self, text_features: Tensor) -> None:
+        """Use one evaluation text vector per image for counterfactual validation."""
+        self._evaluation_text_features = text_features
+
     def apply(self, _module: nn.Module, _inputs: tuple[Tensor, ...], output: Tensor) -> Tensor:
         if _module.training:
             if self._text_features is None:
                 raise RuntimeError("Set text features before the detector forward pass")
             text_features = self._text_features
         else:
-            if self.evaluation_text_feature.numel() == 0:
-                raise RuntimeError("Set an evaluation text feature before detector evaluation")
-            text_features = self.evaluation_text_feature[None].expand(len(output), -1)
+            text_features = getattr(self, "_evaluation_text_features", None)
+            if text_features is None:
+                if self.evaluation_text_feature.numel() == 0:
+                    raise RuntimeError("Set an evaluation text feature before detector evaluation")
+                text_features = self.evaluation_text_feature[None].expand(len(output), -1)
         text_features = text_features.to(device=output.device, dtype=output.dtype)
         return self.film(output, text_features)
 

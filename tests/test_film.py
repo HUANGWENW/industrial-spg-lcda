@@ -27,3 +27,14 @@ def test_evaluation_prompt_is_expanded_to_batch() -> None:
     features = torch.randn(3, 4, 5, 5)
     output = film.apply(source_module, (features,), features)
     assert torch.equal(output, features)
+
+
+def test_evaluation_accepts_one_prompt_per_image() -> None:
+    from spg_lcda.models.film import P5FiLMHook
+
+    film = P5FiLMHook(FeatureFiLM(text_dim=8, channels=4))
+    film.set_evaluation_text_features(torch.randn(3, 8))
+    source_module = torch.nn.Identity().eval()
+    features = torch.randn(3, 4, 5, 5)
+    output = film.apply(source_module, (features,), features)
+    assert torch.equal(output, features)

@@ -122,3 +122,27 @@ python -m pytest -q
 
 The check verifies the detector, OpenCLIP embedding dimension, P5 feature channel
 count, identity-initialized FiLM path, and a two-image conditioned forward pass.
+
+## Counterfactual prompt validation
+
+Use one trained E5-S checkpoint and the same synthetic validation split for all
+three conditions. `correct` uses each row's recorded transform, `fixed` uses the
+neutral prompt for every image, and `shuffled` applies a deterministic balanced
+permutation in which every transform receives a wrong prompt.
+
+```bash
+bash scripts/validate_e5_counterfactual.sh \
+  /data/huangwenwen/yolo11/outputs/E5/E5-S_seed42/weights/best.pt \
+  --batch-size 2 --workers 4 --device 0
+```
+
+The summary is written to:
+
+```text
+/data/huangwenwen/yolo11/outputs/E5/counterfactual/
+  E5-S_seed42/counterfactual_metrics.csv
+```
+
+Text semantics are supported when the same checkpoint performs better with
+`correct` prompts than with both `fixed` and `shuffled` prompts. Repeat the
+comparison across the planned training seeds before treating the effect as stable.
